@@ -1,13 +1,15 @@
+"use strict";
+
 const readline = require('readline-sync');
 const path = require('path');
 const execFile = require('child_process').execFile;
 
 process.env.PATH += pathAppendFormatted();
 function pathAppendFormatted(){
-  return (/^win/.test(process.platform))
-    ? ";" + path.join(__dirname, "node_modules/phantomjs-prebuilt/lib/phantom/bin")
-    : ":" + path.join(__dirname, "node_modules/phantomjs-prebuilt/bin");
+  return (/^win/.test(process.platform) ? ";" : ":") +
+    path.join(__dirname, "node_modules/phantomjs-prebuilt/lib/phantom/bin");
 }
+
 (function getInfo(cb) {
   let url, hasRange, range=[];
   url =  readline.question("What comic url would you like to access?\n");
