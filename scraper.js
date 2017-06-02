@@ -13,7 +13,7 @@ function getLinks(i){
   [].push.apply(urls, l);
 }
 function chapterTitle(num) {
-  var ep = this.fetchText(".subj_info h1");
+  var ep = this.fetchText(".subj_info h1").replace(".", "");
   this.echo("Downloading chapter "+num+" of the comic "+title);
   return "comics/"+title+"/"+ep+".png";
 }
