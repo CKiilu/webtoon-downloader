@@ -1,1 +1,5 @@
-*.logscraper.pyscraper.zipcomics/node_modules/
+*.log
+scraper.py
+scraper.zip
+comics/
+node_modules/
