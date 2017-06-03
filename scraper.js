@@ -19,6 +19,7 @@ function chapterTitle(num) {
 }
 
 function getPages() {
+  console.log(this.getCurrentUrl());
   var url = /.*\.com/.exec(this.getCurrentUrl())[0];
   pagination = this.getElementsInfo("div.paginate a").slice(1)
     .map(function (el) {

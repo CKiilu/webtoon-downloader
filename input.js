@@ -15,13 +15,15 @@ function pathAppendFormatted(){
   return (/^win/.test(process.platform) ? ";" : ":") +
     path.join(__dirname, (fs.existsSync(binaryPath.default) ? binaryPath.default : binaryPath.alternative));
 }
-
+function getURL() {
+  return "http://www."+/webtoons.*/.exec(readline.question("What comic url would you like to access?\n"))[0]
+}
 (function getInfo(cb) {
   let url, hasRange, range=[];
-  url =  readline.question("What comic url would you like to access?\n");
+  url =  getURL();
   while(!urlFormat.test(url)){
     console.log(`Invalid url entered. \n\tFormat is ${urlFormat}.`);
-    url =  readline.question("What comic url would you like to access?\n");
+    url =  getURL();
   }
   hasRange = readline.question("Would you like to specify a range for the chapters you're viewing?\n");
   if(hasRange === 'y' || hasRange === 'yes'){
