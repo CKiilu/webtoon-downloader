@@ -44,7 +44,7 @@ casper.then(function () {
 casper.then(function () {
   urls.reverse();
   if(range.length===2){
-    urls = urls.slice(range[0]-1, range[1]-1);
+    urls = urls.slice(range[0]-1, range[1]);
   }
 })
 
