@@ -18,6 +18,14 @@ function pathAppendFormatted(){
 function getURL() {
   return "http://www."+/webtoons.*/.exec(readline.question("What comic url would you like to access?\n"))[0]
 }
+function getRange() {
+  let r = readline.question("Set your first and last chapter in the format '1,42'\n").split(",").map(num => parseInt(num));
+  if(range.length !== 2){
+    console.error("invalid format used");
+    process.exit();
+  }
+  return r;
+}
 (function getInfo(cb) {
   let url, hasRange, range=[];
   url =  getURL();
@@ -27,10 +35,9 @@ function getURL() {
   }
   hasRange = readline.question("Would you like to specify a range for the chapters you're viewing?\n");
   if(hasRange === 'y' || hasRange === 'yes'){
-    range = readline.question("Set your first and last chapter in the format '1,42'\n").split(",").map(num => parseInt(num));
-    if(range.length !== 2){
-      console.error("invalid format used");
-      process.exit();
+    range = getRange();
+    while(range[0] > range[1]){
+      range = getRange();
     }
   }
   cb(url, range);
