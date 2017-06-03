@@ -19,7 +19,6 @@ function chapterTitle(num) {
 }
 
 function getPages() {
-  console.log(this.getCurrentUrl());
   var url = /.*\.com/.exec(this.getCurrentUrl())[0];
   pagination = this.getElementsInfo("div.paginate a").slice(1)
     .map(function (el) {
@@ -43,6 +42,7 @@ casper.then(function () {
   });
 });
 casper.then(function () {
+  urls.reverse();
   if(range.length===2){
     urls = urls.slice(range[0]-1, range[1]-1);
   }
@@ -50,7 +50,7 @@ casper.then(function () {
 
 casper.then(function () {
   var waitTime = 60000;
-  this.each(urls.reverse(), function (self,link,i) {
+  this.each(urls, function (self,link,i) {
     self.thenOpen(link, function () {
       this.echo("Loading from > "+link);
       this.waitUntilVisible("#_imageList", function () {
