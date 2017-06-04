@@ -3,27 +3,47 @@ var title, pagination;
 var urls = [];
 const options = casper.cli.options;
 const range = JSON.parse(options.range);
+const paginationRange = JSON.parse(options.pagination);
+const reverseLinks = Boolean(paginationRange && paginationRange.fromFirst);
 
-function getLinks(i){
-  this.echo("Getting links from page "+(i+1));
+function getLinks(){
+  var pageNo = this.getCurrentUrl().match(/page=([\d]+)/);
+  this.echo("Getting links from page "+(pageNo ? pageNo[1] : 1));
+  this.echo(this.getCurrentUrl());
   var l = this.getElementsInfo(".detail_lst ul li > a")
     .map(function (el) {
       return el.attributes.href;
     });
-  [].push.apply(urls, l);
+  if(reverseLinks){
+    [].unshift.apply(urls, l);
+  } else {
+    [].push.apply(urls, l);
+  }
 }
-function chapterTitle(num) {
+function chapterTitle() {
   var ep = this.fetchText(".subj_info h1").replace(".", "");
-  this.echo("Downloading chapter "+num+" of the comic "+title);
+  this.echo("Downloading "+ep+" of the comic "+title);
   return "comics/"+title+"/"+ep+".png";
 }
 
 function getPages() {
-  var url = /.*\.com/.exec(this.getCurrentUrl())[0];
-  pagination = this.getElementsInfo("div.paginate a").slice(1)
+  var page = this.getCurrentUrl();
+  var url = /.*\.com/.exec(page)[0];
+  pagination = this.getElementsInfo("div.paginate a")
     .map(function (el) {
       return  url + el.attributes.href;
     });
+  pagination[0] = page;
+  if(paginationRange){
+    if(paginationRange.fromFirst){
+      pagination.reverse();
+    }
+    if(paginationRange.range.constructor === Array){
+      pagination = (paginationRange.length === 1)
+        ? pagination.slice(paginationRange.range[0])
+        : pagination.slice(paginationRange.range[0], paginationRange.range[1]);
+    }
+  }
 }
 
 casper.on("log", function (e) {
@@ -34,11 +54,10 @@ casper.start(options.url, function() {
   this.echo("Starting scraper");
   title = this.fetchText(".detail_header .info h1.subj").split("\n")[0];
   getPages.call(this);
-  getLinks.call(this,0);
 });
 casper.then(function () {
   this.each(pagination, function (self, link, i) {
-    self.thenOpen(link, getLinks.bind(self, i+1));
+    self.thenOpen(link, getLinks.bind(self));
   });
 });
 casper.then(function () {
@@ -46,7 +65,7 @@ casper.then(function () {
   if(range.length===2){
     urls = urls.slice(range[0]-1, range[1]);
   }
-})
+});
 
 casper.then(function () {
   var waitTime = 60000;
@@ -69,11 +88,13 @@ casper.then(function () {
           }
           return this.evaluate(function () {
             return [].slice.call(document.querySelectorAll("#_imageList img")).every(function (el) {
+              console.log(el.src);
+              console.log(el.complete);
               return el.complete && el.src !== "http://webtoons.static.naver.net/image/bg_transparency.png";
             });
           });
         }, function () {
-          this.captureSelector(chapterTitle.call(this, /episode_no=([\d]+)/.exec(link)[1]), "#_imageList");
+          this.captureSelector(chapterTitle.call(this), "#_imageList");
           this.echo("Finished Download")
         }, null, waitTime);
       }, null, waitTime);
